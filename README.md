@@ -4,7 +4,10 @@ Reproducibility
 Check reproducibility under different scenarios
 
 
-1. Same initialization, Same GPU, Different seeds
+1. Same initialization, Same GPU
+    1.0 Different seeds
+    1.1 Same Seeds
+
 2. Different Initialization, Same GPU
 3. Same initialization, Different GPU
 4. Different initialization, different GPU

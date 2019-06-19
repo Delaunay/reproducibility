@@ -77,7 +77,6 @@ class ConvClassifier(nn.Module):
             nn.MaxPool2d(2),
             nn.ReLU(True),
             nn.Conv2d(10, 20, kernel_size=5),
-            nn.Dropout2d(),
             nn.MaxPool2d(2)
         )
 
@@ -91,7 +90,6 @@ class ConvClassifier(nn.Module):
         x = self.convs(x)
         x = x.view(-1, self.conv_output_size)
         x = F.relu(self.fc1(x))
-        x = F.dropout(x, training=self.training)
         x = self.fc2(x)
         return F.log_softmax(x, dim=1)
 
