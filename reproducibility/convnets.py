@@ -34,6 +34,7 @@ parser.add_argument('--opt-level', default='O0', type=str)
 parser.add_argument('--shape', nargs='*', default=(3, 32, 32))
 
 parser.add_argument('--data', metavar='DIR', default='mnist', help='path to dataset')
+parser.add_argument('--init', default=None, help='reuse an init weight', type=str)
 
 WEIGHT_LOC = os.path.dirname(os.path.realpath(__file__)) + '/weights'
 
@@ -97,7 +98,14 @@ class ConvClassifier(nn.Module):
 
 # ----
 model = ConvClassifier(args.shape)
-torch.save(model.state_dict(), f'{WEIGHT_LOC}/{tag}_{args.seed}.init')
+
+init_file = f'{WEIGHT_LOC}/{tag}_{args.seed}.init'
+if args.init is not None:
+    init = torch.load(args.init)
+    model.load_state_dict(init)
+
+elif not os.path.exists(init_file):
+    torch.save(model.state_dict(), init_file)
 
 model = model.to(device)
 
