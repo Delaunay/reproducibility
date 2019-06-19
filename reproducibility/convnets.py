@@ -24,7 +24,7 @@ parser.add_argument('--no-cuda', action='store_false', dest='cuda', help='disabl
 
 parser.add_argument('--workers', '-j', type=int, default=4, help='number of workers/processors to use')
 parser.add_argument('--seed', '-s', type=int, default=0, help='seed to use')
-parser.add_argument('--epochs', '-e', type=int, default=10, help='number of epochs')
+parser.add_argument('--epochs', '-e', type=int, default=30, help='number of epochs')
 
 parser.add_argument('--arch', '-a', metavar='ARCH', default='convnet')
 parser.add_argument('--lr', '--learning-rate', default=0.001, type=float, metavar='LR')
@@ -190,7 +190,7 @@ def do_one_epoch(train_loader):
                 batch_loss = loss.item()
                 epoch_loss += batch_loss
 
-                trial.log_metrics(step=(epoch * train_batch_count + batch_id), train_batch_loss=loss.item())
+                # trial.log_metrics(step=(epoch * train_batch_count + batch_id), train_batch_loss=loss.item())
 
                 # compute gradient and do SGD step
                 optimizer.zero_grad()
