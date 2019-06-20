@@ -102,12 +102,12 @@ else:
     model = models.__dict__[args.arch]()
 
 init_file = f'{WEIGHT_LOC}/{tag}_{args.seed}.init'
-if args.init is not None:
+
+if os.path.exists(init_file):
+    torch.save(model.state_dict(), init_file)
+else:
     init = torch.load(args.init)
     model.load_state_dict(init)
-
-elif not os.path.exists(init_file):
-    torch.save(model.state_dict(), init_file)
 
 model = model.to(device)
 
