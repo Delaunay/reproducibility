@@ -3,16 +3,6 @@ Reproducibility
 
 Check reproducibility under different scenarios
 
-
-1. Same initialization, Same GPU
-    1.0 Different seeds
-    1.1 Same Seeds
-
-2. Different Initialization, Same GPU
-3. Same initialization, Different GPU
-4. Different initialization, different GPU
-
-
 | Devices    |
 |------------|
 | AMD MI50   |
@@ -20,28 +10,17 @@ Check reproducibility under different scenarios
 | CPU Intel  | 
 
 
-# 1. Same initialization, Same GPU
+# 1. Same initialization
 
-## CPU
 
-## NVIDIA
-
-## AMD
+![test_loss](graphs/same_initialization_test_loss.png)
 
 
 # 2. Different Initialization, Same GPU
 
-## CPU
-
-## NVIDIA
-
-## AMD
-
-# 3. Same initialization, Different GPU
-
-
-# 4. Different initialization, different GPU
+![test_loss](graphs/different_initialization_test_loss.png)
 
 
 # Conclusion
 
+Hardware does not matter
