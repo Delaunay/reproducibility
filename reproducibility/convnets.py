@@ -195,15 +195,11 @@ def do_one_epoch(train_loader):
 
                 epoch_items.append(loss.detach())
 
-                # trial.log_metrics(step=(epoch * train_batch_count + batch_id), train_batch_loss=loss.item())
-
                 # compute gradient and do SGD step
                 optimizer.zero_grad()
 
                 with amp.scale_loss(loss, optimizer) as scaled_loss:
                     scaled_loss.backward()
-
-                # loss.backward()
 
                 optimizer.step()
                 batch_id += 1
@@ -222,6 +218,9 @@ def eval_model(test_loader):
     batch_iter = iter(test_loader)
     test_acc = 0
 
+    acc_items = []
+    loss_items = []
+
     while True:
         with trial.chrono('test_batch_time'):
 
@@ -239,16 +238,14 @@ def eval_model(test_loader):
                     acc = (target.eq(output.max(dim=1)[1].long())).sum()
                     loss = criterion(output, target)
 
-                    test_acc += acc.item()
-
-                    batch_loss = loss.item()
-                    epoch_loss += batch_loss
+                    acc_items.append(acc.detach())
+                    loss_items.append(loss.detach())
 
                 optimizer.step()
                 batch_id += 1
 
-    test_acc /= test_img_count
-    epoch_loss /= test_batch_count
+    test_acc = sum([i.item() for i in acc_items]) / test_img_count
+    epoch_loss = sum([i.item() for i in loss_items]) / test_batch_count
 
     trial.log_metrics(step=epoch, test_loss=epoch_loss)
     trial.log_metrics(step=epoch, test_acc=test_acc * 100)
