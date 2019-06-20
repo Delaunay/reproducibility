@@ -129,7 +129,7 @@ model, optimizer = amp.initialize(
 
 
 transform = transforms.Compose([
-    transforms.RandomResizedCrop(size=args.shape[1:]),
+    transforms.RandomResizedCrop(size=args.shape[-1]),
     transforms.ToTensor(),
     transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
 ])
