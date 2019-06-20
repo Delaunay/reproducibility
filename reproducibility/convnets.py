@@ -108,7 +108,7 @@ if args.init is not None:
     model.load_state_dict(init)
 
 elif os.path.exists(init_file):
-    init = torch.load(args.init)
+    init = torch.load(init_file)
     model.load_state_dict(init)
 
 else:
