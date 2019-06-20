@@ -8,7 +8,7 @@ from typing import List
 from track.persistence.storage import LocalStorage, load_database
 
 
-# Differen Init
+# Different Init
 
 BASE = os.path.dirname(os.path.realpath(__file__)) + '/../'
 
@@ -22,10 +22,10 @@ def plot_lines(lines: List[List[go.Scatter]], graph_name='test', y_name='Objecti
     font = 'Courier New, monospace'
 
     h = 640
-    w = h * 10 / 9
+    w = h * 16 / 9
 
     layout = go.Layout(
-        width=640,
+        width=w,
         height=h,
         margin=go.layout.Margin(
             l=0.1 * h,
@@ -69,9 +69,9 @@ def plot_lines(lines: List[List[go.Scatter]], graph_name='test', y_name='Objecti
             orientation="h",
             font=dict(
                 family=font,
-                size=10,
+                size=12,
                 color='#7f7f7f'
-            )
+            ),
         )
     )
     fig = go.Figure(data=all_lines, layout=layout)
@@ -154,13 +154,25 @@ for m, name in [('test_acc', 'Test Accuracy'), ('train_loss', 'Train Loss'), ('t
 
     amd_2 = get_curve_with_error(f'{BASE}/results/amd_2.json', name=f'AMD', metric=m, color=color_palette[0])
     cpu_2 = get_curve_with_error(f'{BASE}/results/cpu_2.json', name=f'CPU', metric=m, color=color_palette[1])
+    nvidia_2 = get_curve_with_error(f'{BASE}/results/nvidia_2.json', name=f'NVIDIA', metric=m, color=color_palette[2])
 
-    plot_lines([amd_2, cpu_2], graph_name=f'different_initialization_{m}', y_name=name, folder=f'{BASE}/graphs')
+    plot_lines(
+        [amd_2, cpu_2, nvidia_2],
+        graph_name=f'different_initialization_{m}',
+        y_name=name,
+        folder=f'{BASE}/graphs'
+    )
 
     amd_1 = get_curve_with_error(f'{BASE}/results/amd_1.json', name=f'AMD', metric=m, color=color_palette[0])
     cpu_1 = get_curve_with_error(f'{BASE}/results/cpu_1.json', name=f'CPU', metric=m, color=color_palette[1])
+    nvidia_1 = get_curve_with_error(f'{BASE}/results/nvidia_1.json', name=f'NVIDIA', metric=m, color=color_palette[2])
 
-    plot_lines([amd_1, cpu_1], graph_name=f'same_initialization_{m}', y_name=name, folder=f'{BASE}/graphs')
+    plot_lines(
+        [amd_1, cpu_1, nvidia_1],
+        graph_name=f'same_initialization_{m}',
+        y_name=name,
+        folder=f'{BASE}/graphs'
+    )
 
 
 
