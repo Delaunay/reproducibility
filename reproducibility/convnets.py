@@ -120,11 +120,11 @@ model, optimizer = amp.initialize(
     model,
     optimizer,
     enabled=args.opt_level != 'O0',
-    cast_model_type=None,
-    patch_torch_functions=True,
-    keep_batchnorm_fp32=None,
-    master_weights=None,
-    loss_scale="dynamic",
+#    cast_model_type=None,
+#    patch_torch_functions=True,
+#    keep_batchnorm_fp32=None,
+#    master_weights=None,
+#    loss_scale="dynamic",
     opt_level=args.opt_level
 )
 
