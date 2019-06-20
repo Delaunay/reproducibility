@@ -95,7 +95,11 @@ class ConvClassifier(nn.Module):
 
 
 # ----
-model = ConvClassifier(args.shape)
+if args.arch == 'convnet':
+    model = ConvClassifier(args.shape)
+else:
+    args.shape = (3, 224, 224)
+    model = models.__dict__[args.arch]()
 
 init_file = f'{WEIGHT_LOC}/{tag}_{args.seed}.init'
 if args.init is not None:
@@ -120,16 +124,12 @@ model, optimizer = amp.initialize(
     model,
     optimizer,
     enabled=args.opt_level != 'O0',
-#    cast_model_type=None,
-#    patch_torch_functions=True,
-#    keep_batchnorm_fp32=None,
-#    master_weights=None,
-#    loss_scale="dynamic",
     opt_level=args.opt_level
 )
 
 
 transform = transforms.Compose([
+    transforms.RandomResizedCrop(size=args.shape[1:]),
     transforms.ToTensor(),
     transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
 ])
@@ -175,9 +175,8 @@ def next_batch(batch_iter):
 
 def do_one_epoch(train_loader):
     batch_id = 0
-    epoch_loss = 0
-
     batch_iter = iter(train_loader)
+    epoch_items = []
 
     while True:
         with trial.chrono('train_batch_time'):
@@ -194,8 +193,7 @@ def do_one_epoch(train_loader):
                 output = model(input)
                 loss = criterion(output, target)
 
-                batch_loss = loss.item()
-                epoch_loss += batch_loss
+                epoch_items.append(loss.detach())
 
                 # trial.log_metrics(step=(epoch * train_batch_count + batch_id), train_batch_loss=loss.item())
 
@@ -203,14 +201,15 @@ def do_one_epoch(train_loader):
                 optimizer.zero_grad()
 
                 with amp.scale_loss(loss, optimizer) as scaled_loss:
-                     scaled_loss.backward()
+                    scaled_loss.backward()
 
                 # loss.backward()
 
                 optimizer.step()
                 batch_id += 1
 
-    epoch_loss /= train_batch_count
+    count = len(epoch_items)
+    epoch_loss = sum([i.item() for i in epoch_items]) / count
     trial.log_metrics(step=epoch, train_loss=epoch_loss)
 
     return epoch_loss

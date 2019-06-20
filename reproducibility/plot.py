@@ -44,7 +44,7 @@ def plot_lines(lines: List[List[go.Scatter]], graph_name='test', y_name='Objecti
             )
         ),
         xaxis=go.layout.XAxis(
-            type='log',
+            # type='log',
             title=go.layout.xaxis.Title(
                 text='Epoch',
                 font=dict(
@@ -137,38 +137,61 @@ def get_curve_with_error(db, name, metric='train_loss', color=(0, 176, 246)):
     )
     return [lower_bound, mean, upper_bound]
 
+
 color_palette = [
-    (0,  176, 246),
-    (246, 176, 0),
+    (0,  176, 246),  # 0
+    (246, 176, 0),   # 1
 
-    (176, 0, 246),
-    (176, 246, 0),
+    (176, 0, 246),   # 2
+    (176, 246, 0),   # 3
 
-    (0, 256, 176),
-    (256, 0, 176),
+    (0, 256, 176),   # 4
+    (256, 0, 176),   # 5
 ]
 
 metric = 'test_acc'
 
 for m, name in [('test_acc', 'Test Accuracy'), ('train_loss', 'Train Loss'), ('test_loss', 'Test Loss')]:
 
-    amd_2 = get_curve_with_error(f'{BASE}/results/amd_2.json', name=f'AMD', metric=m, color=color_palette[0])
-    cpu_2 = get_curve_with_error(f'{BASE}/results/cpu_2.json', name=f'CPU', metric=m, color=color_palette[1])
-    nvidia_2 = get_curve_with_error(f'{BASE}/results/nvidia_2.json', name=f'NVIDIA', metric=m, color=color_palette[2])
+    amd_2 = get_curve_with_error(
+        f'{BASE}/results/amd_2.json', name=f'AMD fp32', metric=m, color=color_palette[0])
+
+    amd_2_fp16 = get_curve_with_error(
+        f'{BASE}/results/amd_fp16_2.json', name=f'AMD fp16', metric=m, color=color_palette[5])
+
+    cpu_2 = get_curve_with_error(
+        f'{BASE}/results/cpu_2.json', name=f'CPU fp32', metric=m, color=color_palette[1])
+
+    nvidia_2 = get_curve_with_error(
+        f'{BASE}/results/nvidia_2.json', name=f'NVIDIA fp32', metric=m, color=color_palette[2])
+
+    nvidia_2_fp16 = get_curve_with_error(
+        f'{BASE}/results/nvidia_p100_fp16_2.json', name=f'NVIDIA fp16', metric=m, color=color_palette[4])
 
     plot_lines(
-        [amd_2, cpu_2, nvidia_2],
+        [amd_2, cpu_2, nvidia_2, nvidia_2_fp16, amd_2_fp16],
         graph_name=f'different_initialization_{m}',
         y_name=name,
         folder=f'{BASE}/graphs'
     )
 
-    amd_1 = get_curve_with_error(f'{BASE}/results/amd_1.json', name=f'AMD', metric=m, color=color_palette[0])
-    cpu_1 = get_curve_with_error(f'{BASE}/results/cpu_1.json', name=f'CPU', metric=m, color=color_palette[1])
-    nvidia_1 = get_curve_with_error(f'{BASE}/results/nvidia_1.json', name=f'NVIDIA', metric=m, color=color_palette[2])
+    amd_1 = get_curve_with_error(
+        f'{BASE}/results/amd_1.json', name=f'AMD fp32', metric=m, color=color_palette[0])
+
+    amd_1_fp16 = get_curve_with_error(
+        f'{BASE}/results/amd_fp16_1.json', name=f'AMD fp16', metric=m, color=color_palette[5])
+
+    cpu_1 = get_curve_with_error(
+        f'{BASE}/results/cpu_1.json', name=f'CPU fp32', metric=m, color=color_palette[1])
+
+    nvidia_1 = get_curve_with_error(
+        f'{BASE}/results/nvidia_1.json', name=f'NVIDIA fp32', metric=m, color=color_palette[2])
+
+    nvidia_1_fp16 = get_curve_with_error(
+        f'{BASE}/results/nvidia_p100_fp16_1.json', name=f'NVIDIA fp16', metric=m, color=color_palette[4])
 
     plot_lines(
-        [amd_1, cpu_1, nvidia_1],
+        [amd_1, cpu_1, nvidia_1, nvidia_1_fp16, amd_1_fp16],
         graph_name=f'same_initialization_{m}',
         y_name=name,
         folder=f'{BASE}/graphs'
