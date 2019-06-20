@@ -127,10 +127,14 @@ def get_curve_with_error(db, name, metric='train_loss'):
     return [lower_bound, mean, upper_bound]
 
 
-amd_1 = get_curve_with_error(f'{BASE}/amd_2.json', name='(2) AMD - Cost', metric='test_acc')
-plot_lines([amd_1], graph_name='amd_2')
+amd_2 = get_curve_with_error(f'{BASE}/amd_2.json', name='(2) AMD - Cost', metric='test_acc')
+cpu_2 = get_curve_with_error(f'{BASE}/cpu_2.json', name='(2) CPU - Cost', metric='test_acc')
+plot_lines([amd_2, cpu_2], graph_name='amd_2')
 
 
-amd_2 = get_curve_with_error(f'{BASE}/amd_1.json', name='(1) AMD - Cost', metric='test_acc')
-plot_lines([amd_2], graph_name='amd_1')
+amd_1 = get_curve_with_error(f'{BASE}/amd_1.json', name='(1) AMD - Cost', metric='test_acc')
+cpu_1 = get_curve_with_error(f'{BASE}/cpu_1.json', name='(1) CPU - Cost', metric='test_acc')
+plot_lines([amd_1, cpu_1], graph_name='amd_1')
+
+
 
