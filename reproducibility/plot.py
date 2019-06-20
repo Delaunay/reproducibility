@@ -13,7 +13,7 @@ from track.persistence.storage import LocalStorage, load_database
 BASE = os.path.dirname(os.path.realpath(__file__)) + '/../'
 
 
-def plot_lines(lines: List[List[go.Scatter]], graph_name='test'):
+def plot_lines(lines: List[List[go.Scatter]], graph_name='test', y_name='Objective', folder=''):
     """ Aggregate the the problem in `problem_ids` """
     all_lines = []
     for line in lines:
@@ -21,7 +21,19 @@ def plot_lines(lines: List[List[go.Scatter]], graph_name='test'):
 
     font = 'Courier New, monospace'
 
+    h = 640
+    w = h * 10 / 9
+
     layout = go.Layout(
+        width=640,
+        height=h,
+        margin=go.layout.Margin(
+            l=0.1 * h,
+            r=0.1 * h,
+            b=0.1 * w,
+            t=0.1 * w,
+            pad=4
+        ),
         title=go.layout.Title(
             text=graph_name,
             xref='paper',
@@ -34,7 +46,7 @@ def plot_lines(lines: List[List[go.Scatter]], graph_name='test'):
         xaxis=go.layout.XAxis(
             type='log',
             title=go.layout.xaxis.Title(
-                text='Duration (s)',
+                text='Epoch',
                 font=dict(
                     family=font,
                     size=12,
@@ -45,7 +57,7 @@ def plot_lines(lines: List[List[go.Scatter]], graph_name='test'):
         yaxis=go.layout.YAxis(
             type='log',
             title=go.layout.yaxis.Title(
-                text='Objective',
+                text=y_name,
                 font=dict(
                     family=font,
                     size=12,
@@ -57,17 +69,17 @@ def plot_lines(lines: List[List[go.Scatter]], graph_name='test'):
             orientation="h",
             font=dict(
                 family=font,
-                size=12,
+                size=10,
                 color='#7f7f7f'
-            ),
+            )
         )
     )
     fig = go.Figure(data=all_lines, layout=layout)
     # py.plot(fig, filename=f'results/graphs/{graph_name}.html', auto_open=False)
-    pio.write_image(fig, f'{graph_name}.png')
+    pio.write_image(fig, f'{folder}/{graph_name}.png')
 
 
-def get_curve_with_error(db, name, metric='train_loss'):
+def get_curve_with_error(db, name, metric='train_loss', color=(0, 176, 246)):
     amd = load_database(db)
 
     loss = {}
@@ -90,7 +102,6 @@ def get_curve_with_error(db, name, metric='train_loss'):
         'max': max_metric
     })
 
-    color = (0, 176, 246)
     color_full = ','.join(map(lambda x: str(x), color))
     color_dim = f'rgba({color_full},0.1)'
     color_full = f'rgb({color_full})'
@@ -126,15 +137,30 @@ def get_curve_with_error(db, name, metric='train_loss'):
     )
     return [lower_bound, mean, upper_bound]
 
+color_palette = [
+    (0,  176, 246),
+    (246, 176, 0),
 
-amd_2 = get_curve_with_error(f'{BASE}/amd_2.json', name='(2) AMD - Cost', metric='test_acc')
-cpu_2 = get_curve_with_error(f'{BASE}/cpu_2.json', name='(2) CPU - Cost', metric='test_acc')
-plot_lines([amd_2, cpu_2], graph_name='amd_2')
+    (176, 0, 246),
+    (176, 246, 0),
 
+    (0, 256, 176),
+    (256, 0, 176),
+]
 
-amd_1 = get_curve_with_error(f'{BASE}/amd_1.json', name='(1) AMD - Cost', metric='test_acc')
-cpu_1 = get_curve_with_error(f'{BASE}/cpu_1.json', name='(1) CPU - Cost', metric='test_acc')
-plot_lines([amd_1, cpu_1], graph_name='amd_1')
+metric = 'test_acc'
+
+for m, name in [('test_acc', 'Test Accuracy'), ('train_loss', 'Train Loss'), ('test_loss', 'Test Loss')]:
+
+    amd_2 = get_curve_with_error(f'{BASE}/results/amd_2.json', name=f'AMD', metric=m, color=color_palette[0])
+    cpu_2 = get_curve_with_error(f'{BASE}/results/cpu_2.json', name=f'CPU', metric=m, color=color_palette[1])
+
+    plot_lines([amd_2, cpu_2], graph_name=f'different_initialization_{m}', y_name=name, folder=f'{BASE}/graphs')
+
+    amd_1 = get_curve_with_error(f'{BASE}/results/amd_1.json', name=f'AMD', metric=m, color=color_palette[0])
+    cpu_1 = get_curve_with_error(f'{BASE}/results/cpu_1.json', name=f'CPU', metric=m, color=color_palette[1])
+
+    plot_lines([amd_1, cpu_1], graph_name=f'same_initialization_{m}', y_name=name, folder=f'{BASE}/graphs')
 
 
 
