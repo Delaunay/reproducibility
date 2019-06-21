@@ -19,7 +19,7 @@ sys.stderr = sys.stdout
 
 parser = argparse.ArgumentParser(description='Convnet training for torchvision models')
 
-parser.add_argument('--batch-size', '-b', type=int, help='batch size', default=128)
+parser.add_argument('--batch-size', '-b', type=int, help='batch size', default=256)
 parser.add_argument('--cuda', action='store_true', dest='cuda', default=True, help='enable cuda')
 parser.add_argument('--no-cuda', action='store_false', dest='cuda', help='disable cuda')
 
