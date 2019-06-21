@@ -28,7 +28,7 @@ parser.add_argument('--seed', '-s', type=int, default=0, help='seed to use')
 parser.add_argument('--epochs', '-e', type=int, default=30, help='number of epochs')
 
 parser.add_argument('--arch', '-a', metavar='ARCH', default='convnet')
-parser.add_argument('--lr', '--learning-rate', default=0.001, type=float, metavar='LR')
+parser.add_argument('--lr', '--learning-rate', default=0.1, type=float, metavar='LR')
 parser.add_argument('--momentum', default=0.9, type=float, metavar='MT')
 parser.add_argument('--opt-level', default='O0', type=str)
 parser.add_argument('--shape', nargs='*', default=(3, 32, 32))
@@ -124,7 +124,8 @@ criterion = nn.CrossEntropyLoss().to(device)
 optimizer = torch.optim.SGD(
     model.parameters(),
     args.lr,
-    args.momentum
+    args.momentum,
+    weight_decay=5e-4
 )
 
 # ----
