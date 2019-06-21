@@ -11,7 +11,7 @@ import torchvision.models as models
 import torch.nn.functional as F
 import argparse
 import os
-
+import traceback
 from apex import amp
 
 
@@ -35,18 +35,19 @@ parser.add_argument('--shape', nargs='*', default=(3, 32, 32))
 
 parser.add_argument('--data', metavar='DIR', default='mnist', help='path to dataset')
 parser.add_argument('--init', default=None, help='reuse an init weight', type=str)
+parser.add_argument('--report', default='report.json')
 
 WEIGHT_LOC = os.path.dirname(os.path.realpath(__file__)) + '/weights'
 
 # ----
-trial = TrackClient(backend='file:report.json')
+args = parser.parse_args()
+trial = TrackClient(backend=f'file:{args.report}')
 trial.set_project(
     name='Reproducibility',
     description='Test NVIDIA vs AMD performance in term of loss/accuracy')
 
 trial.new_trial()
-
-args = trial.get_arguments(parser.parse_args(), show=True)
+args = trial.get_arguments(args, show=True)
 device = trial.get_device()
 
 tag = 'cpu'
@@ -62,8 +63,9 @@ torch.manual_seed(args.seed)
 try:
     import torch.backends.cudnn as cudnn
     cudnn.benchmark = True
+
 except Exception:
-    pass
+    traceback.print_exc()
 
 
 class ConvClassifier(nn.Module):
@@ -220,10 +222,7 @@ def do_one_epoch(train_loader):
 
 def eval_model(test_loader):
     batch_id = 0
-    epoch_loss = 0
-
     batch_iter = iter(test_loader)
-    test_acc = 0
 
     acc_items = []
     loss_items = []

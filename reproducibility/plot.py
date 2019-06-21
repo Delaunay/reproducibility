@@ -153,46 +153,79 @@ metric = 'test_acc'
 
 for m, name in [('test_acc', 'Test Accuracy'), ('train_loss', 'Train Loss'), ('test_loss', 'Test Loss')]:
 
-    amd_2 = get_curve_with_error(
-        f'{BASE}/results/amd_2.json', name=f'AMD fp32', metric=m, color=color_palette[0])
+    curves_2 = []
+    files = [
+        (f'{BASE}/results/amd_2.json', f'AMD fp32'),
+        (f'{BASE}/results/amd_fp16_2.json', f'AMD fp16'),
+        (f'{BASE}/results/cpu_2.json', f'CPU fp32'),
+        (f'{BASE}/results/nvidia_2.json', f'NVIDIA fp32'),
+        (f'{BASE}/results/nvidia_p100_fp16_2.json', f'NVIDIA fp16')
+    ]
 
-    amd_2_fp16 = get_curve_with_error(
-        f'{BASE}/results/amd_fp16_2.json', name=f'AMD fp16', metric=m, color=color_palette[5])
-
-    cpu_2 = get_curve_with_error(
-        f'{BASE}/results/cpu_2.json', name=f'CPU fp32', metric=m, color=color_palette[1])
-
-    nvidia_2 = get_curve_with_error(
-        f'{BASE}/results/nvidia_2.json', name=f'NVIDIA fp32', metric=m, color=color_palette[2])
-
-    nvidia_2_fp16 = get_curve_with_error(
-        f'{BASE}/results/nvidia_p100_fp16_2.json', name=f'NVIDIA fp16', metric=m, color=color_palette[4])
+    for i, (file, name) in enumerate(files):
+        curves_2.append(get_curve_with_error(file, name, m, color_palette[i]))
 
     plot_lines(
-        [amd_2, cpu_2, nvidia_2, nvidia_2_fp16, amd_2_fp16],
+        curves_2,
         graph_name=f'different_initialization_{m}',
         y_name=name,
         folder=f'{BASE}/graphs'
     )
 
-    amd_1 = get_curve_with_error(
-        f'{BASE}/results/amd_1.json', name=f'AMD fp32', metric=m, color=color_palette[0])
+    curves_1 = []
+    files = [
+        (f'{BASE}/results/amd_1.json', f'AMD fp32'),
+        (f'{BASE}/results/amd_fp16_1.json', f'AMD fp16'),
+        (f'{BASE}/results/cpu_1.json', f'CPU fp32'),
+        (f'{BASE}/results/nvidia_1.json', f'NVIDIA fp32'),
+        (f'{BASE}/results/nvidia_p100_fp16_1.json', f'NVIDIA fp16')
+    ]
 
-    amd_1_fp16 = get_curve_with_error(
-        f'{BASE}/results/amd_fp16_1.json', name=f'AMD fp16', metric=m, color=color_palette[5])
-
-    cpu_1 = get_curve_with_error(
-        f'{BASE}/results/cpu_1.json', name=f'CPU fp32', metric=m, color=color_palette[1])
-
-    nvidia_1 = get_curve_with_error(
-        f'{BASE}/results/nvidia_1.json', name=f'NVIDIA fp32', metric=m, color=color_palette[2])
-
-    nvidia_1_fp16 = get_curve_with_error(
-        f'{BASE}/results/nvidia_p100_fp16_1.json', name=f'NVIDIA fp16', metric=m, color=color_palette[4])
+    for i, (file, name) in enumerate(files):
+        curves_1.append(get_curve_with_error(file, name, m, color_palette[i]))
 
     plot_lines(
-        [amd_1, cpu_1, nvidia_1, nvidia_1_fp16, amd_1_fp16],
+        curves_1,
         graph_name=f'same_initialization_{m}',
+        y_name=name,
+        folder=f'{BASE}/graphs'
+    )
+
+
+for m, name in [('test_acc', 'Test Accuracy'), ('train_loss', 'Train Loss'), ('test_loss', 'Test Loss')]:
+
+    curves_2 = []
+    files = [
+        (f'{BASE}/results/resnet18_amd_2.json', f'AMD fp32'),
+        # (f'{BASE}/results/amd_fp16_2.json', f'AMD fp16'),
+        (f'{BASE}/results/resnet18_nvidia_2.json', f'NVIDIA fp32'),
+        # (f'{BASE}/results/nvidia_p100_fp16_2.json', f'NVIDIA fp16')
+    ]
+
+    for i, (file, name) in enumerate(files):
+        curves_2.append(get_curve_with_error(file, name, m, color_palette[i]))
+
+    plot_lines(
+        curves_2,
+        graph_name=f'resnet18_different_initialization_{m}',
+        y_name=name,
+        folder=f'{BASE}/graphs'
+    )
+
+    curves_1 = []
+    files = [
+        (f'{BASE}/results/resnet18_amd_1.json', f'AMD fp32'),
+        # (f'{BASE}/results/amd_fp16_1.json', f'AMD fp16'),
+        (f'{BASE}/results/resnet18_nvidia_1.json', f'NVIDIA fp32'),
+        # (f'{BASE}/results/nvidia_p100_fp16_1.json', f'NVIDIA fp16')
+    ]
+
+    for i, (file, name) in enumerate(files):
+        curves_1.append(get_curve_with_error(file, name, m, color_palette[i]))
+
+    plot_lines(
+        curves_1,
+        graph_name=f'resnet18_same_initialization_{m}',
         y_name=name,
         folder=f'{BASE}/graphs'
     )
