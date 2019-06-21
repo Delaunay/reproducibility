@@ -97,13 +97,12 @@ class ConvClassifier(nn.Module):
 
 
 # ----
-init_file = f'{WEIGHT_LOC}/{tag}_{args.seed}.init'
+init_file = f'{WEIGHT_LOC}/{tag}_{args.seed}_{args.arch}.init'
 if args.arch == 'convnet':
     model = ConvClassifier(args.shape)
 else:
     args.shape = (3, 224, 224)
     model = models.__dict__[args.arch]()
-    init_file = f'{WEIGHT_LOC}/{tag}_{args.seed}_{args.arch}.init'
 
 
 if args.init is not None:
