@@ -30,8 +30,8 @@ parser.add_argument('--workers', '-j', type=int, default=4, help='number of work
 parser.add_argument('--seed', '-s', type=int, default=0, help='seed to use')
 parser.add_argument('--epochs', '-e', type=int, default=30, help='number of epochs')
 
-parser.add_argument('--warmup', default=True, action='store_true', dest='warm')
-parser.add_argument('--no-warmup', action='store_false', dest='warm')
+parser.add_argument('--warmup', default=True, action='store_true', dest='warmup')
+parser.add_argument('--no-warmup', action='store_false', dest='warmup')
 parser.add_argument('--warmup_lr', type=float, default=0.001)
 parser.add_argument('--warmup_epoch', type=int, default=5, help='number of epochs')
 
