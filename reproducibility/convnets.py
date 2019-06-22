@@ -30,7 +30,7 @@ parser.add_argument('--workers', '-j', type=int, default=4, help='number of work
 parser.add_argument('--seed', '-s', type=int, default=0, help='seed to use')
 parser.add_argument('--epochs', '-e', type=int, default=30, help='number of epochs')
 
-parser.add_argument('--warmup', default=True, action='store_true', dest='warmup')
+parser.add_argument('--warmup', default=False, action='store_true', dest='warmup')
 parser.add_argument('--no-warmup', action='store_false', dest='warmup')
 parser.add_argument('--warmup_lr', type=float, default=0.001)
 parser.add_argument('--warmup_epoch', type=int, default=5, help='number of epochs')
@@ -285,7 +285,6 @@ with trial:
     if args.warmup:
         model_warm, optimizer_warm = make_optimizer(model, args.warmup_lr)
         print('- Warm up')
-        print(optimizer_warm)
         trial.set_eta_total(args.warmup_epoch)
         for epoch in range(args.warmup_epoch):
             with trial.chrono('warmup_epoch') as epoch_time:
@@ -296,7 +295,6 @@ with trial:
     print('- Training')
     trial.set_eta_total(args.epochs)
     model, optimizer = make_optimizer(model, args.lr)
-    print(optimizer)
     for epoch in range(args.epochs):
         with trial.chrono('epoch') as epoch_time:
 
