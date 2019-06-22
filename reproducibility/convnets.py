@@ -39,6 +39,7 @@ parser.add_argument('--shape', nargs='*', default=(3, 32, 32))
 parser.add_argument('--data', metavar='DIR', default='mnist', help='path to dataset')
 parser.add_argument('--init', default=None, help='reuse an init weight', type=str)
 parser.add_argument('--report', default='report.json')
+parser.add_argument('--dry-run', action='store_true')
 
 WEIGHT_LOC = os.path.dirname(os.path.realpath(__file__)) + '/weights'
 
@@ -122,6 +123,8 @@ elif os.path.exists(init_file):
 else:
     torch.save(model.state_dict(), init_file)
 
+if args.dry_run:
+    sys.exit()
 
 model = model.to(device)
 
