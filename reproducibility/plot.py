@@ -197,7 +197,7 @@ for m, name in [('test_acc', 'Test Accuracy'), ('train_loss', 'Train Loss'), ('t
     curves_2 = []
     files = [
         (f'{BASE}/results/resnet18_amd_2.json', f'AMD fp32'),
-        # (f'{BASE}/results/amd_fp16_2.json', f'AMD fp16'),
+        (f'{BASE}/results/resnet18_amd_2.json', f'AMD fp16'),
         (f'{BASE}/results/resnet18_nvidia_2.json', f'NVIDIA fp32'),
         # (f'{BASE}/results/nvidia_p100_fp16_2.json', f'NVIDIA fp16')
     ]
@@ -217,7 +217,7 @@ for m, name in [('test_acc', 'Test Accuracy'), ('train_loss', 'Train Loss'), ('t
         (f'{BASE}/results/resnet18_amd_1.json', f'AMD fp32'),
         (f'{BASE}/results/resnet18_amd_fp16_1.json', f'AMD fp16'),
         (f'{BASE}/results/resnet18_nvidia_1.json', f'NVIDIA fp32'),
-        # (f'{BASE}/results/nvidia_p100_fp16_1.json', f'NVIDIA fp16')
+        (f'{BASE}/results/resnet18_nvidia_fp16_1.json', f'NVIDIA fp16')
     ]
 
     for i, (file, name) in enumerate(files):

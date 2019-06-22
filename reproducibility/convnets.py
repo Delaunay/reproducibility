@@ -13,10 +13,13 @@ import argparse
 import os
 import traceback
 from apex import amp
+import reproducibility.resnet as resnet_cifar
 
 
 sys.stderr = sys.stdout
 
+all_models = models.__dict__
+all_models.update(resnet_cifar.__dict__)
 parser = argparse.ArgumentParser(description='Convnet training for torchvision models')
 
 parser.add_argument('--batch-size', '-b', type=int, help='batch size', default=256)
@@ -27,7 +30,7 @@ parser.add_argument('--workers', '-j', type=int, default=4, help='number of work
 parser.add_argument('--seed', '-s', type=int, default=0, help='seed to use')
 parser.add_argument('--epochs', '-e', type=int, default=30, help='number of epochs')
 
-parser.add_argument('--arch', '-a', metavar='ARCH', default='convnet')
+parser.add_argument('--arch', '-a', metavar='ARCH', default='convnet', choices=all_models.keys())
 parser.add_argument('--lr', '--learning-rate', default=0.1, type=float, metavar='LR')
 parser.add_argument('--momentum', default=0.9, type=float, metavar='MT')
 parser.add_argument('--opt-level', default='O0', type=str)
@@ -100,9 +103,12 @@ class ConvClassifier(nn.Module):
 init_file = f'{WEIGHT_LOC}/{tag}_{args.seed}_{args.arch}.init'
 if args.arch == 'convnet':
     model = ConvClassifier(args.shape)
+elif args.arch.endswith('cifar'):
+    args.shape = (3, 32, 32)
+    model = all_models[args.arch]()
 else:
     args.shape = (3, 224, 224)
-    model = models.__dict__[args.arch]()
+    model = all_models[args.arch]()
 
 
 if args.init is not None:

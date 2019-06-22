@@ -1,2 +1,8 @@
 git+https://github.com/Delaunay/track.git
 git+https://github.com/Delaunay/apex.git
+git+https://github.com/Delaunay/benchutils.git
+plotly
+pandas
+dataclasses
+typing
+plotly-orca
