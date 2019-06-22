@@ -15,15 +15,15 @@ REPORT=${network}_${vendor}
 # ----------------------------------------------------------------------------------------------------------------------
 
 for i in {0..9}; do
-	python -m reproducibility.convnets "$@" --init reproducibility/weights/cpu_0_${network}.init --seed $i --report  ${REPORT}_1.json
+	python -m reproducibility.convnets "$@" --opt-level O0 --seed $i --report ${REPORT}_fp32_2.json
 done
 
 for i in {0..9}; do
-	python -m reproducibility.convnets "$@" --seed $i --report ${REPORT}_2.json
+	python -m reproducibility.convnets "$@" --opt-level O0 --init reproducibility/weights/cpu_0_${network}.init --seed $i --report ${REPORT}_fp32_1.json
 done
 
 for i in {0..9}; do
-	python -m reproducibility.convnets "$@" --seed $i --report ${REPORT}_3.json --init reproducibility/weights/cpu_${i}_${network}.init
+	python -m reproducibility.convnets "$@" --opt-level O0 --init reproducibility/weights/cpu_${i}_${network}.init --seed $i --report ${REPORT}_fp32_3.json
 done
 
 
@@ -31,15 +31,15 @@ done
 # ----------------------------------------------------------------------------------------------------------------------
 
 for i in {0..9}; do
-	python -m reproducibility.convnets "$@" --opt-level O1 --init reproducibility/weights/cpu_0_${network}.init --seed $i --report ${REPORT}_fp16__1.json
-done
-
-for i in {0..9}; do
 	python -m reproducibility.convnets "$@" --opt-level O1 --seed $i --report ${REPORT}_fp16_2.json
 done
 
 for i in {0..9}; do
-	python -m reproducibility.convnets "$@" --seed $i --report ${REPORT}_fp16_3.json --init reproducibility/weights/cpu_${i}_${network}.init
+	python -m reproducibility.convnets "$@" --opt-level O1 --init reproducibility/weights/cpu_0_${network}.init --seed $i --report ${REPORT}_fp16_1.json
+done
+
+for i in {0..9}; do
+	python -m reproducibility.convnets "$@" --opt-level O1 --init reproducibility/weights/cpu_${i}_${network}.init --seed $i --report ${REPORT}_fp16_3.json
 done
 
 # ----------------------------------------------------------------------------------------------------------------------
