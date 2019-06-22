@@ -35,6 +35,7 @@ parser.add_argument('--no-warmup', action='store_false', dest='warmup')
 parser.add_argument('--warmup_lr', type=float, default=0.001)
 parser.add_argument('--warmup_epoch', type=int, default=5, help='number of epochs')
 
+parser.add_argument('--optimizer', default='SGD')
 parser.add_argument('--arch', '-a', metavar='ARCH', default='convnet', choices=all_models.keys())
 parser.add_argument('--lr', '--learning-rate', default=0.1, type=float, metavar='LR')
 parser.add_argument('--momentum', default=0.9, type=float, metavar='MT')
@@ -143,6 +144,11 @@ def make_optimizer(model, lr):
         args.momentum,
         weight_decay=args.weight_decay
     )
+    if args.optimizer == 'adam':
+        optimizer = torch.optim.Adam(
+            model.parameters(),
+            lr
+        )
 
     return amp.initialize(
         model,
@@ -281,14 +287,14 @@ with trial:
 
     if args.warmup:
         model_warm, optimizer_warm = make_optimizer(model, args.warmup_lr)
-        print('warm up')
+        print('- Warm up')
         for epoch in range(args.warmup_epoch):
             with trial.chrono('warmup_epoch') as epoch_time:
                 loss = do_one_epoch(train_loader, model_warm, optimizer_warm)
 
-            trial.show_eta(epoch, epoch_time, f'| loss: {loss:5.2f}')
+            trial.show_eta(epoch, args.warmup_epoch, f'| loss: {loss:5.2f}')
 
-    print('training')
+    print('- Training')
     model, optimizer = make_optimizer(model, args.lr)
     for epoch in range(args.epochs):
         with trial.chrono('epoch') as epoch_time:
