@@ -11,7 +11,7 @@ import torchvision.models as models
 import torch.nn.functional as F
 import argparse
 import os
-
+import traceback
 from apex import amp
 
 
@@ -19,7 +19,7 @@ sys.stderr = sys.stdout
 
 parser = argparse.ArgumentParser(description='Convnet training for torchvision models')
 
-parser.add_argument('--batch-size', '-b', type=int, help='batch size', default=128)
+parser.add_argument('--batch-size', '-b', type=int, help='batch size', default=256)
 parser.add_argument('--cuda', action='store_true', dest='cuda', default=True, help='enable cuda')
 parser.add_argument('--no-cuda', action='store_false', dest='cuda', help='disable cuda')
 
@@ -28,25 +28,26 @@ parser.add_argument('--seed', '-s', type=int, default=0, help='seed to use')
 parser.add_argument('--epochs', '-e', type=int, default=30, help='number of epochs')
 
 parser.add_argument('--arch', '-a', metavar='ARCH', default='convnet')
-parser.add_argument('--lr', '--learning-rate', default=0.001, type=float, metavar='LR')
+parser.add_argument('--lr', '--learning-rate', default=0.1, type=float, metavar='LR')
 parser.add_argument('--momentum', default=0.9, type=float, metavar='MT')
 parser.add_argument('--opt-level', default='O0', type=str)
 parser.add_argument('--shape', nargs='*', default=(3, 32, 32))
 
 parser.add_argument('--data', metavar='DIR', default='mnist', help='path to dataset')
 parser.add_argument('--init', default=None, help='reuse an init weight', type=str)
+parser.add_argument('--report', default='report.json')
 
 WEIGHT_LOC = os.path.dirname(os.path.realpath(__file__)) + '/weights'
 
 # ----
-trial = TrackClient(backend='file:report.json')
+args = parser.parse_args()
+trial = TrackClient(backend=f'file:{args.report}')
 trial.set_project(
     name='Reproducibility',
     description='Test NVIDIA vs AMD performance in term of loss/accuracy')
 
 trial.new_trial()
-
-args = trial.get_arguments(parser.parse_args(), show=True)
+args = trial.get_arguments(args, show=True)
 device = trial.get_device()
 
 tag = 'cpu'
@@ -62,8 +63,9 @@ torch.manual_seed(args.seed)
 try:
     import torch.backends.cudnn as cudnn
     cudnn.benchmark = True
+
 except Exception:
-    pass
+    traceback.print_exc()
 
 
 class ConvClassifier(nn.Module):
@@ -95,13 +97,12 @@ class ConvClassifier(nn.Module):
 
 
 # ----
-init_file = f'{WEIGHT_LOC}/{tag}_{args.seed}.init'
+init_file = f'{WEIGHT_LOC}/{tag}_{args.seed}_{args.arch}.init'
 if args.arch == 'convnet':
     model = ConvClassifier(args.shape)
 else:
     args.shape = (3, 224, 224)
     model = models.__dict__[args.arch]()
-    init_file = f'{WEIGHT_LOC}/{tag}_{args.seed}_{args.arch}.init'
 
 
 if args.init is not None:
@@ -123,7 +124,8 @@ criterion = nn.CrossEntropyLoss().to(device)
 optimizer = torch.optim.SGD(
     model.parameters(),
     args.lr,
-    args.momentum
+    args.momentum,
+    weight_decay=5e-4
 )
 
 # ----
@@ -220,10 +222,7 @@ def do_one_epoch(train_loader):
 
 def eval_model(test_loader):
     batch_id = 0
-    epoch_loss = 0
-
     batch_iter = iter(test_loader)
-    test_acc = 0
 
     acc_items = []
     loss_items = []
