@@ -286,6 +286,7 @@ with trial:
     if args.warmup:
         model_warm, optimizer_warm = make_optimizer(model, args.warmup_lr)
         print('- Warm up')
+        print(optimizer_warm)
         trial.set_eta_total(args.warmup_epoch)
         for epoch in range(args.warmup_epoch):
             with trial.chrono('warmup_epoch') as epoch_time:
@@ -296,6 +297,7 @@ with trial:
     print('- Training')
     trial.set_eta_total(args.epochs)
     model, optimizer = make_optimizer(model, args.lr)
+    print(optimizer)
     for epoch in range(args.epochs):
         with trial.chrono('epoch') as epoch_time:
 
