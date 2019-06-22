@@ -280,21 +280,21 @@ def eval_model(test_loader, model, optimizer):
     return test_acc * 100
 
 
-trial.set_eta_total(args.epochs)
-
 with trial:
     model.train()
 
     if args.warmup:
         model_warm, optimizer_warm = make_optimizer(model, args.warmup_lr)
         print('- Warm up')
+        trial.set_eta_total(args.warmup_epoch)
         for epoch in range(args.warmup_epoch):
             with trial.chrono('warmup_epoch') as epoch_time:
                 loss = do_one_epoch(train_loader, model_warm, optimizer_warm)
 
-            trial.show_eta(epoch, args.warmup_epoch, f'| loss: {loss:5.2f}')
+            trial.show_eta(epoch, epoch_time, f'| loss: {loss:5.2f}')
 
     print('- Training')
+    trial.set_eta_total(args.epochs)
     model, optimizer = make_optimizer(model, args.lr)
     for epoch in range(args.epochs):
         with trial.chrono('epoch') as epoch_time:
