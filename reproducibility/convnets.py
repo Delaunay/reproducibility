@@ -241,7 +241,7 @@ def do_one_epoch(train_loader, model, optimizer):
     return epoch_loss
 
 
-def eval_model(test_loader, model, optimizer):
+def eval_model(test_loader, model):
     batch_id = 0
     batch_iter = iter(test_loader)
 
@@ -268,7 +268,6 @@ def eval_model(test_loader, model, optimizer):
                     acc_items.append(acc.detach())
                     loss_items.append(loss.detach())
 
-                optimizer.step()
                 batch_id += 1
 
     test_acc = sum([i.item() for i in acc_items]) / test_img_count
@@ -305,7 +304,7 @@ with trial:
                 loss = do_one_epoch(train_loader, model, optimizer)
 
             with trial.chrono('eval_time'):
-                acc = eval_model(test_loader, model, optimizer)
+                acc = eval_model(test_loader, model)
 
         trial.show_eta(epoch, epoch_time, f'| loss: {loss:5.2f} | acc: {acc:5.2f}')
 
