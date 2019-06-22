@@ -30,9 +30,15 @@ parser.add_argument('--workers', '-j', type=int, default=4, help='number of work
 parser.add_argument('--seed', '-s', type=int, default=0, help='seed to use')
 parser.add_argument('--epochs', '-e', type=int, default=30, help='number of epochs')
 
+parser.add_argument('--warmup', default=True, action='store_true', dest='warm')
+parser.add_argument('--no-warmup', action='store_false', dest='warm')
+parser.add_argument('--warmup_lr', type=float, default=0.001)
+parser.add_argument('--warmup_epoch', type=int, default=5, help='number of epochs')
+
 parser.add_argument('--arch', '-a', metavar='ARCH', default='convnet', choices=all_models.keys())
 parser.add_argument('--lr', '--learning-rate', default=0.1, type=float, metavar='LR')
 parser.add_argument('--momentum', default=0.9, type=float, metavar='MT')
+parser.add_argument('--weight-decay', default=5e-4, type=float, metavar='MT')
 parser.add_argument('--opt-level', default='O0', type=str)
 parser.add_argument('--shape', nargs='*', default=(3, 32, 32))
 
@@ -127,23 +133,23 @@ if args.dry_run:
     sys.exit()
 
 model = model.to(device)
-
 criterion = nn.CrossEntropyLoss().to(device)
 
-optimizer = torch.optim.SGD(
-    model.parameters(),
-    args.lr,
-    args.momentum,
-    weight_decay=5e-4
-)
 
-# ----
-model, optimizer = amp.initialize(
-    model,
-    optimizer,
-    enabled=args.opt_level != 'O0',
-    opt_level=args.opt_level
-)
+def make_optimizer(model, lr):
+    optimizer = torch.optim.SGD(
+        model.parameters(),
+        lr,
+        args.momentum,
+        weight_decay=args.weight_decay
+    )
+
+    return amp.initialize(
+        model,
+        optimizer,
+        enabled=args.opt_level != 'O0',
+        opt_level=args.opt_level
+    )
 
 
 transform = transforms.Compose([
@@ -191,7 +197,7 @@ def next_batch(batch_iter):
         return None
 
 
-def do_one_epoch(train_loader):
+def do_one_epoch(train_loader, model, optimizer):
     batch_id = 0
     batch_iter = iter(train_loader)
     epoch_items = []
@@ -229,7 +235,7 @@ def do_one_epoch(train_loader):
     return epoch_loss
 
 
-def eval_model(test_loader):
+def eval_model(test_loader, model, optimizer):
     batch_id = 0
     batch_iter = iter(test_loader)
 
@@ -272,13 +278,26 @@ trial.set_eta_total(args.epochs)
 
 with trial:
     model.train()
+
+    if args.warmup:
+        model_warm, optimizer_warm = make_optimizer(model, args.warmup_lr)
+        print('warm up')
+        for epoch in range(args.warmup_epoch):
+            with trial.chrono('warmup_epoch') as epoch_time:
+                loss = do_one_epoch(train_loader, model_warm, optimizer_warm)
+
+            trial.show_eta(epoch, epoch_time, f'| loss: {loss:5.2f}')
+
+    print('training')
+    model, optimizer = make_optimizer(model, args.lr)
     for epoch in range(args.epochs):
         with trial.chrono('epoch') as epoch_time:
+
             with trial.chrono('epoch_time'):
-                loss = do_one_epoch(train_loader)
+                loss = do_one_epoch(train_loader, model, optimizer)
 
             with trial.chrono('eval_time'):
-                acc = eval_model(test_loader)
+                acc = eval_model(test_loader, model, optimizer)
 
         trial.show_eta(epoch, epoch_time, f'| loss: {loss:5.2f} | acc: {acc:5.2f}')
 
