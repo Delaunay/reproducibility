@@ -55,7 +55,7 @@ args = trial.get_arguments(args, show=True)
 device = trial.get_device()
 
 tag = 'cpu'
-if torch.cuda.is_available():
+if torch.cuda.is_available() and args.cuda:
     tag = torch.cuda.get_device_name(device)
     torch.cuda.manual_seed_all(args.seed)
 
