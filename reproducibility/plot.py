@@ -5,6 +5,9 @@ import plotly.figure_factory as ff
 import plotly.graph_objs as go
 import plotly.io as pio
 from typing import List
+from plotly import tools
+import plotly.plotly as py
+
 from track.persistence.storage import LocalStorage, load_database
 
 
@@ -149,86 +152,87 @@ color_palette = [
     (256, 0, 176),   # 5
 ]
 
-metric = 'test_acc'
 
-for m, name in [('test_acc', 'Test Accuracy'), ('train_loss', 'Train Loss'), ('test_loss', 'Test Loss')]:
+def convnet():
+    for m, name in [('test_acc', 'Test Accuracy'), ('train_loss', 'Train Loss'), ('test_loss', 'Test Loss')]:
 
-    curves_2 = []
-    files = [
-        (f'{BASE}/results/amd_2.json', f'AMD fp32'),
-        (f'{BASE}/results/amd_fp16_2.json', f'AMD fp16'),
-        (f'{BASE}/results/cpu_2.json', f'CPU fp32'),
-        (f'{BASE}/results/nvidia_2.json', f'NVIDIA fp32'),
-        (f'{BASE}/results/nvidia_p100_fp16_2.json', f'NVIDIA fp16')
-    ]
+        curves_2 = []
+        files = [
+            (f'{BASE}/results/amd_2.json', f'AMD fp32'),
+            (f'{BASE}/results/amd_fp16_2.json', f'AMD fp16'),
+            (f'{BASE}/results/cpu_2.json', f'CPU fp32'),
+            (f'{BASE}/results/nvidia_2.json', f'NVIDIA fp32'),
+            (f'{BASE}/results/nvidia_p100_fp16_2.json', f'NVIDIA fp16')
+        ]
 
-    for i, (file, name) in enumerate(files):
-        curves_2.append(get_curve_with_error(file, name, m, color_palette[i]))
+        for i, (file, name) in enumerate(files):
+            curves_2.append(get_curve_with_error(file, name, m, color_palette[i]))
 
-    plot_lines(
-        curves_2,
-        graph_name=f'different_initialization_{m}',
-        y_name=name,
-        folder=f'{BASE}/graphs'
-    )
+        plot_lines(
+            curves_2,
+            graph_name=f'different_initialization_{m}',
+            y_name=name,
+            folder=f'{BASE}/graphs'
+        )
 
-    curves_1 = []
-    files = [
-        (f'{BASE}/results/amd_1.json', f'AMD fp32'),
-        (f'{BASE}/results/amd_fp16_1.json', f'AMD fp16'),
-        (f'{BASE}/results/cpu_1.json', f'CPU fp32'),
-        (f'{BASE}/results/nvidia_1.json', f'NVIDIA fp32'),
-        (f'{BASE}/results/nvidia_p100_fp16_1.json', f'NVIDIA fp16')
-    ]
+        curves_1 = []
+        files = [
+            (f'{BASE}/results/amd_1.json', f'AMD fp32'),
+            (f'{BASE}/results/amd_fp16_1.json', f'AMD fp16'),
+            (f'{BASE}/results/cpu_1.json', f'CPU fp32'),
+            (f'{BASE}/results/nvidia_1.json', f'NVIDIA fp32'),
+            (f'{BASE}/results/nvidia_p100_fp16_1.json', f'NVIDIA fp16')
+        ]
 
-    for i, (file, name) in enumerate(files):
-        curves_1.append(get_curve_with_error(file, name, m, color_palette[i]))
+        for i, (file, name) in enumerate(files):
+            curves_1.append(get_curve_with_error(file, name, m, color_palette[i]))
 
-    plot_lines(
-        curves_1,
-        graph_name=f'same_initialization_{m}',
-        y_name=name,
-        folder=f'{BASE}/graphs'
-    )
-
-
-for m, name in [('test_acc', 'Test Accuracy'), ('train_loss', 'Train Loss'), ('test_loss', 'Test Loss')]:
-
-    curves_2 = []
-    files = [
-        (f'{BASE}/results/resnet18_amd_2.json', f'AMD fp32'),
-        (f'{BASE}/results/resnet18_amd_2.json', f'AMD fp16'),
-        (f'{BASE}/results/resnet18_nvidia_2.json', f'NVIDIA fp32'),
-        # (f'{BASE}/results/nvidia_p100_fp16_2.json', f'NVIDIA fp16')
-    ]
-
-    for i, (file, name) in enumerate(files):
-        curves_2.append(get_curve_with_error(file, name, m, color_palette[i]))
-
-    plot_lines(
-        curves_2,
-        graph_name=f'resnet18_different_initialization_{m}',
-        y_name=name,
-        folder=f'{BASE}/graphs'
-    )
-
-    curves_1 = []
-    files = [
-        (f'{BASE}/results/resnet18_amd_1.json', f'AMD fp32'),
-        (f'{BASE}/results/resnet18_amd_fp16_1.json', f'AMD fp16'),
-        (f'{BASE}/results/resnet18_nvidia_1.json', f'NVIDIA fp32'),
-        (f'{BASE}/results/resnet18_nvidia_fp16_1.json', f'NVIDIA fp16')
-    ]
-
-    for i, (file, name) in enumerate(files):
-        curves_1.append(get_curve_with_error(file, name, m, color_palette[i]))
-
-    plot_lines(
-        curves_1,
-        graph_name=f'resnet18_same_initialization_{m}',
-        y_name=name,
-        folder=f'{BASE}/graphs'
-    )
+        plot_lines(
+            curves_1,
+            graph_name=f'same_initialization_{m}',
+            y_name=name,
+            folder=f'{BASE}/graphs'
+        )
 
 
+def plot(model):
+    for m, name in [('test_acc', 'Test Accuracy'), ('train_loss', 'Train Loss'), ('test_loss', 'Test Loss')]:
 
+        curves_2 = []
+        files = [
+            (f'{BASE}/results/{model}_amd_fp32_2.json', f'AMD fp32'),
+            (f'{BASE}/results/{model}_amd_fp16_2.json', f'AMD fp16'),
+            (f'{BASE}/results/{model}_nvidia_fp32_2.json', f'NVIDIA fp32'),
+            (f'{BASE}/results/{model}_nvidia_fp16_2.json', f'NVIDIA fp16')
+        ]
+
+        for i, (file, name) in enumerate(files):
+            curves_2.append(get_curve_with_error(file, name, m, color_palette[i]))
+
+        plot_lines(
+            curves_2,
+            graph_name=f'resnet18_cifar_different_initialization_{m}',
+            y_name=name,
+            folder=f'{BASE}/graphs'
+        )
+
+        curves_1 = []
+        files = [
+            (f'{BASE}/results/{model}_amd_fp32_1.json', f'AMD fp32'),
+            (f'{BASE}/results/{model}_amd_fp16_1.json', f'AMD fp16'),
+            (f'{BASE}/results/{model}_nvidia_fp32_1.json', f'NVIDIA fp32'),
+            (f'{BASE}/results/{model}_nvidia_fp16_1.json', f'NVIDIA fp16')
+        ]
+
+        for i, (file, name) in enumerate(files):
+            curves_1.append(get_curve_with_error(file, name, m, color_palette[i]))
+
+        plot_lines(
+            curves_1,
+            graph_name=f'resnet18_cifar_same_initialization_{m}',
+            y_name=name,
+            folder=f'{BASE}/graphs'
+        )
+
+
+plot(model='resnet18_cifar')
